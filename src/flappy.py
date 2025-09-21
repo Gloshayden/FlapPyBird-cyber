@@ -51,6 +51,9 @@ class Flappy:
         """Shows welcome splash screen animation of flappy bird"""
 
         self.player.set_mode(PlayerMode.SHM)
+        highscore = self.get_highscore()
+        font = pygame.font.SysFont(None, 24)
+        hs_text = font.render(f"Highscore: {highscore}", True, (255, 255, 255))
 
         while True:
             for event in pygame.event.get():
@@ -62,10 +65,23 @@ class Flappy:
             self.floor.tick()
             self.player.tick()
             self.welcome_message.tick()
+            self.config.screen.blit(hs_text, (10, 10)) 
 
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
+
+    def get_highscore(self) -> int:
+        try:
+            with open("highscore.txt", "r") as f:
+                return int(f.read())
+        except (FileNotFoundError, ValueError):
+            return 0
+    
+    def set_highscore(self, score):
+        with open("highscore.txt", "w") as f:
+            f.write(str(score))
+        return
 
     def check_quit_event(self, event):
         if event.type == QUIT or (
@@ -115,6 +131,9 @@ class Flappy:
         self.player.set_mode(PlayerMode.CRASH)
         self.pipes.stop()
         self.floor.stop()
+
+        if self.score.current() > self.get_highscore():
+            self.set_highscore(self.score.current())
 
         while True:
             for event in pygame.event.get():
