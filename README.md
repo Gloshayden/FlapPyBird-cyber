@@ -22,6 +22,19 @@ Setup (as tested on MacOS)
 
 5. Optionally run `make web` to run the game in the browser (`pygbag`).
 
+Server Setup (as tested on Arch Linux)
+---------------------------
+
+1. Install Python 3 from [here](https://www.python.org/download/releases/) (or use brew/apt/pyenv)
+
+2. make a venv in the leaderboard directory or not
+
+3. Run ```pip install websockets```
+
+4. Run ```python server.py``` to start
+
+5. change the websocket URL in ```main.py```
+
 Notable forks
 -------------
 - [FlapPyBlink Blink to control the bird](https://github.com/sero583/FlappyBlink)
