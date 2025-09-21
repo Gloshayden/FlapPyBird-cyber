@@ -1,5 +1,4 @@
-import asyncio
-import sys
+import asyncio, sys, json
 
 import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
@@ -14,7 +13,7 @@ from .entities import (
     Score,
     WelcomeMessage,
 )
-from .utils import GameConfig, Images, Sounds, Window
+from .utils import GameConfig, Images, Sounds, Window, WebSocketClient
 
 
 class Flappy:
@@ -34,7 +33,7 @@ class Flappy:
             sounds=Sounds(),
         )
 
-    async def start(self):
+    async def start(self, websocketURL):
         while True:
             self.background = Background(self.config)
             self.floor = Floor(self.config)
@@ -43,6 +42,8 @@ class Flappy:
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
             self.score = Score(self.config)
+            self.websocket = WebSocketClient(websocketURL)
+            self.websocket.connect()
             await self.splash()
             await self.play()
             await self.game_over()
@@ -87,6 +88,7 @@ class Flappy:
         if event.type == QUIT or (
             event.type == KEYDOWN and event.key == K_ESCAPE
         ):
+            self.websocket.close()
             pygame.quit()
             sys.exit()
 
@@ -133,6 +135,8 @@ class Flappy:
         self.floor.stop()
 
         if self.score.current() > self.get_highscore():
+            self.websocket.send("score")
+            self.websocket.respond(json.dumps({"name": self.name, "score":str(self.score.current())}))
             self.set_highscore(self.score.current())
 
         while True:
