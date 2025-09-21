@@ -17,6 +17,9 @@ class Score(Entity):
         self.score += 1
         self.config.sounds.point.play()
 
+    def current(self) -> int:
+        return self.score
+
     @property
     def rect(self) -> pygame.Rect:
         score_digits = [int(x) for x in list(str(self.score))]
