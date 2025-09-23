@@ -35,6 +35,7 @@ class Flappy:
 
     async def start(self, websocketURL):
         while True:
+            self.raw = None
             self.background = Background(self.config)
             self.floor = Floor(self.config)
             self.player = Player(self.config)
@@ -55,6 +56,7 @@ class Flappy:
         highscore = self.get_highscore()
         font = pygame.font.SysFont(None, 24)
         hs_text = font.render(f"Highscore: {highscore}", True, (255, 255, 255))
+        lb_text = font.render("press L for Leaderboard", True, (255, 255, 255))
 
         while True:
             for event in pygame.event.get():
@@ -69,7 +71,7 @@ class Flappy:
             self.player.tick()
             self.welcome_message.tick()
             self.config.screen.blit(hs_text, (10, 10)) 
-
+            self.config.screen.blit(lb_text, (10, 30))
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
@@ -77,8 +79,14 @@ class Flappy:
     async def leaderboard(self):
         font = pygame.font.SysFont(None, 24)
         leaderboard_font = pygame.font.SysFont(None, 32)
+        if self.raw == None:
+            self.raw = self.websocket.respond("get")
+        leaderboard_json = json.loads(self.raw)
+        leaderboard_json = leaderboard_json["leaderboard"]
+        users = []
+        for user in leaderboard_json:
+            users += [f"{user["name"]}: Score {user["score"]}"]
         back_text = font.render("Press ESC to go back", True, (255, 255, 255))
-        placeholder = font.render("placeholder", True, (255, 255, 255))
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -89,7 +97,10 @@ class Flappy:
             self.floor.tick()
             self.player.tick()
             self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
-            self.config.screen.blit(placeholder, (20, 30))  # Adjust position as needed
+            for i in range(len(users)):
+                j = i * 30
+                leaderboard = leaderboard_font.render(users[i], True, (255, 255, 255))
+                self.config.screen.blit(leaderboard, (20, 30+j))  # Adjust position as needed
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
