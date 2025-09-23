@@ -1,6 +1,7 @@
 import asyncio, sys, json
 
 import pygame
+import FreeSimpleGUI as sg
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT, K_l
 
 from .entities import (
@@ -45,6 +46,19 @@ class Flappy:
             self.score = Score(self.config)
             self.websocket = WebSocketClient(websocketURL)
             self.websocket.connect()
+            layout = [  [sg.Text("please enter in your name")],
+                        [sg.InputText()],
+                        [sg.Button('Confirm'), sg.Button('Cancel')] ]
+            window = sg.Window('Connect to server', layout)
+            event, values = window.read()
+            if event == 'Confirm':
+                window.close()
+                self.name = values[0]
+            elif event == sg.WIN_CLOSED or event == 'Cancel':
+                window.close()
+                self.websocket.close()
+                pygame.quit()
+                sys.exit()
             await self.splash()
             await self.play()
             await self.game_over()
@@ -192,4 +206,4 @@ class Flappy:
 
             self.config.tick()
             pygame.display.update()
-            await asyncio.sleep(0)
+            await asyncio.sleep(2)
