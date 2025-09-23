@@ -5,3 +5,4 @@ build
 .vscode
 .DS_Store
 leaderboard/leaderboard.json
+highscore.txt
