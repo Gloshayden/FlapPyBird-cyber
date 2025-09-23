@@ -1,7 +1,7 @@
 import asyncio, sys, json
 
 import pygame
-from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT
+from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT, K_l
 
 from .entities import (
     Background,
@@ -59,7 +59,9 @@ class Flappy:
         while True:
             for event in pygame.event.get():
                 self.check_quit_event(event)
-                if self.is_tap_event(event):
+                if self.check_leaderboard(event):
+                    await self.leaderboard()
+                elif self.is_tap_event(event):
                     return
 
             self.background.tick()
@@ -68,6 +70,26 @@ class Flappy:
             self.welcome_message.tick()
             self.config.screen.blit(hs_text, (10, 10)) 
 
+            pygame.display.update()
+            await asyncio.sleep(0)
+            self.config.tick()
+
+    async def leaderboard(self):
+        font = pygame.font.SysFont(None, 24)
+        leaderboard_font = pygame.font.SysFont(None, 32)
+        back_text = font.render("Press ESC to go back", True, (255, 255, 255))
+        placeholder = font.render("placeholder", True, (255, 255, 255))
+        while True:
+            for event in pygame.event.get():
+                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    return
+                elif self.is_tap_event(event):
+                    return
+            self.background.tick()
+            self.floor.tick()
+            self.player.tick()
+            self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
+            self.config.screen.blit(placeholder, (20, 30))  # Adjust position as needed
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
@@ -91,6 +113,10 @@ class Flappy:
             self.websocket.close()
             pygame.quit()
             sys.exit()
+
+    def check_leaderboard(self, event):
+        if event.type == KEYDOWN and event.key == K_l:
+            return True
 
     def is_tap_event(self, event):
         m_left, _, _ = pygame.mouse.get_pressed()
