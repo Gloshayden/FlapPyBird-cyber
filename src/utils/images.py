@@ -44,7 +44,7 @@ class Images:
         rand_pipe = 0
 
         self.background = pygame.image.load(BACKGROUNDS[rand_bg]).convert()
-        self.hacked_background = pygame.image.load(BACKGROUNDS[1]).convert()
+        # self.hacked_background = pygame.image.load(BACKGROUNDS[1]).convert()
         self.player = (
             pygame.image.load(PLAYERS[rand_player][0]).convert_alpha(),
             pygame.image.load(PLAYERS[rand_player][1]).convert_alpha(),
@@ -58,6 +58,7 @@ class Images:
             ),
             pygame.image.load(PIPES[rand_pipe]).convert_alpha(),
         )
+        """ Will decide later to add the hacked function
         self.hacked_pipe = (
             pygame.transform.flip(
                 pygame.image.load(PIPES[1]).convert_alpha(),
@@ -65,4 +66,4 @@ class Images:
                 True,
             ),
             pygame.image.load(PIPES[1]).convert_alpha(),
-        )
+        )"""
