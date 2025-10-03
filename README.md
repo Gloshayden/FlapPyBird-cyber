@@ -35,6 +35,27 @@ Server Setup (as tested on Arch Linux)
 
 5. change the websocket URL in ```main.py```
 
+Server Setup Docker
+---------------------------
+
+Docker compose:
+```yml
+name: leaderboard
+services:
+    python-leaderboard:
+        container_name: leaderboard
+        ports:
+            - 8080:8080
+        image: python-leaderboard
+```
+Then run: ```docker compose up -d```
+(The compose file is also in the leaderboard file)
+
+Docker CLI:
+``` Docker CLI
+docker run -d --name leaderboard -p 8080:8080 python-leaderboard
+```
+
 Notable forks
 -------------
 - [FlapPyBlink Blink to control the bird](https://github.com/sero583/FlappyBlink)

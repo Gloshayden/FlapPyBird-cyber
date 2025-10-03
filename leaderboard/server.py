@@ -25,10 +25,10 @@ async def handler(websocket):
                 try:
                     score = int(score)
                     if score < 0: #negative scores not allowed
-                        await websocket.send("err") #tell client to disconnect
+                        await websocket.send("Negitive")
                         return
                 except:
-                    await websocket.send("err") #tell client to disconnect
+                    await websocket.send("Invalid") #tell client to disconnect
                     return
                 with open("leaderboard.json","r") as f: #load leaderboard
                     leaderboard = json.load(f)
@@ -57,8 +57,9 @@ async def handler(websocket):
         return
 
 async def main():
-    print("starting leaderboard server")
-    async with serve(handler, "127.0.0.1", 8000):
+    port = 8080
+    print(f"starting leaderboard server on {port}")
+    async with serve(handler, "0.0.0.0", port):
         await asyncio.Future()  # run forever
 
 try:
