@@ -186,8 +186,8 @@ class Flappy:
         self.floor.stop()
 
         if self.score.current() > self.get_highscore():
-            self.websocket.send("score")
-            self.websocket.respond(json.dumps({"name": self.name, "score":str(self.score.current())}))
+            await self.websocket.send("score")
+            await self.websocket.send(json.dumps({"name": self.name, "score":str(self.score.current())}))
             self.set_highscore(self.score.current())
 
         while True:

@@ -1,4 +1,4 @@
-import websocket
+import websocket, asyncio
 
 class WebSocketClient:
     def __init__(self, uri):
@@ -19,9 +19,10 @@ class WebSocketClient:
             return self.ws.recv()
         return None
 
-    def send(self, message):
+    async def send(self, message):
         if self.ws is not None:
             self.ws.send(message)
+            return asyncio.sleep(2)
 
     def receive(self):
         if self.ws is not None:
