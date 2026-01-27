@@ -1,7 +1,9 @@
-import asyncio, sys, json
+import asyncio
+import json
+import sys
 
-import pygame
 import FreeSimpleGUI as sg
+import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT, K_l
 
 from .entities import (
@@ -14,7 +16,7 @@ from .entities import (
     Score,
     WelcomeMessage,
 )
-from .utils import GameConfig, Images, Sounds, Window, WebSocketClient
+from .utils import GameConfig, Images, Sounds, WebSocketClient, Window
 
 
 class Flappy:
@@ -46,15 +48,18 @@ class Flappy:
             self.score = Score(self.config)
             self.websocket = WebSocketClient(websocketURL)
             self.websocket.connect()
-            layout = [  [sg.Text("please enter in your name")],
-                        [sg.InputText()],
-                        [sg.Button('Confirm'), sg.Button('Cancel')] ]
-            window = sg.Window('Connect to server', layout)
+            layout = [
+                [sg.Text("please enter in your name")],
+                [sg.InputText(key="Input1")],
+                [sg.Button("Confirm"), sg.Button("Cancel")],
+            ]
+            window = sg.Window("Connect to server", layout, finalize=True)
+            window["Input1"].bind("<Return>", "_Enter")
             event, values = window.read()
-            if event == 'Confirm':
+            if event == "Confirm" or event == "Input1" + "_Enter":
                 window.close()
-                self.name = values[0]
-            elif event == sg.WIN_CLOSED or event == 'Cancel':
+                self.name = values["Input1"]
+            if event == sg.WIN_CLOSED or event == "Cancel":
                 window.close()
                 self.websocket.close()
                 pygame.quit()
@@ -84,7 +89,7 @@ class Flappy:
             self.floor.tick()
             self.player.tick()
             self.welcome_message.tick()
-            self.config.screen.blit(hs_text, (10, 10)) 
+            self.config.screen.blit(hs_text, (10, 10))
             self.config.screen.blit(lb_text, (10, 30))
             pygame.display.update()
             await asyncio.sleep(0)
@@ -99,22 +104,30 @@ class Flappy:
         leaderboard_json = leaderboard_json["leaderboard"]
         users = []
         for user in leaderboard_json:
-            users += [f"{user["name"]}: Score {user["score"]}"]
+            users += [f"{user['name']}: Score {user['score']}"]
         back_text = font.render("Press ESC to go back", True, (255, 255, 255))
         while True:
             for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                if event.type == QUIT or (
+                    event.type == KEYDOWN and event.key == K_ESCAPE
+                ):
                     return
                 elif self.is_tap_event(event):
                     return
             self.background.tick()
             self.floor.tick()
             self.player.tick()
-            self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
+            self.config.screen.blit(
+                back_text, (10, 10)
+            )  # Adjust position as needed
             for i in range(len(users)):
                 j = i * 30
-                leaderboard = leaderboard_font.render(users[i], True, (255, 255, 255))
-                self.config.screen.blit(leaderboard, (20, 30+j))  # Adjust position as needed
+                leaderboard = leaderboard_font.render(
+                    users[i], True, (255, 255, 255)
+                )
+                self.config.screen.blit(
+                    leaderboard, (20, 30 + j)
+                )  # Adjust position as needed
             pygame.display.update()
             await asyncio.sleep(0)
             self.config.tick()
@@ -125,7 +138,7 @@ class Flappy:
                 return int(f.read())
         except (FileNotFoundError, ValueError):
             return 0
-    
+
     def set_highscore(self, score):
         with open("highscore.txt", "w") as f:
             f.write(str(score))
@@ -187,7 +200,11 @@ class Flappy:
 
         if self.score.current() > self.get_highscore():
             await self.websocket.send("score")
-            await self.websocket.send(json.dumps({"name": self.name, "score":str(self.score.current())}))
+            await self.websocket.send(
+                json.dumps(
+                    {"name": self.name, "score": str(self.score.current())}
+                )
+            )
             self.set_highscore(self.score.current())
 
         while True:

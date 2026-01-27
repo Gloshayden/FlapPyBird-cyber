@@ -2,19 +2,14 @@
 PLAYERS = (
     # yellow bird
     (
-        "assets/sprites/yellowbird-upflap.png",
-        "assets/sprites/yellowbird-midflap.png",
-        "assets/sprites/yellowbird-downflap.png",
+        "assets/sprites/mrs_file.png",
+        "assets/sprites/mrs_file_2.png",
+        "assets/sprites/mrs_file_3.png",
     ),
 )
 
 # list of backgrounds
-BACKGROUNDS = (
-    "assets/sprites/background-day.png",
-)
+BACKGROUNDS = ("assets/sprites/background-day.png",)
 
 # list of pipes
-PIPES = (
-    "assets/sprites/pipe-green.png",
-    "assets/sprites/pipe-red.png",
-)
+PIPES = ("assets/sprites/pipe.png",)
