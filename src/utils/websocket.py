@@ -1,4 +1,7 @@
-import websocket, asyncio
+import asyncio
+
+import websocket
+
 
 class WebSocketClient:
     def __init__(self, uri):
@@ -8,11 +11,11 @@ class WebSocketClient:
     def connect(self):
         self.ws = websocket.WebSocket()
         try:
-            self.ws.connect(self.uri)
+            self.ws.connect(self.uri, timeout=0)
         except Exception as e:
             print(f"Failed to connect to {self.uri}: {e}")
             self.ws = None
-        
+
     def respond(self, message):
         if self.ws is not None:
             self.ws.send(message)
