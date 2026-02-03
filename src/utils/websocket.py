@@ -1,6 +1,7 @@
 import asyncio
 
 import websocket
+from websocket import BrokenPipeError
 
 
 class WebSocketClient:
@@ -11,20 +12,28 @@ class WebSocketClient:
     def connect(self):
         self.ws = websocket.WebSocket()
         try:
-            self.ws.connect(self.uri, timeout=0)
+            self.ws.connect(self.uri, timeout=480)
         except Exception as e:
             print(f"Failed to connect to {self.uri}: {e}")
             self.ws = None
 
     def respond(self, message):
         if self.ws is not None:
-            self.ws.send(message)
+            try:
+                self.ws.send(message)
+            except BrokenPipeError:
+                self.connect()
+                self.ws.send(message)
             return self.ws.recv()
         return None
 
     async def send(self, message):
         if self.ws is not None:
-            self.ws.send(message)
+            try:
+                self.ws.send(message)
+            except BrokenPipeError:
+                self.connect()
+                self.ws.send(message)
             return asyncio.sleep(2)
 
     def receive(self):
