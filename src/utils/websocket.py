@@ -1,7 +1,6 @@
 import asyncio
 
 import websocket
-from websocket import BrokenPipeError
 
 
 class WebSocketClient:
@@ -26,6 +25,17 @@ class WebSocketClient:
                 self.ws.send(message)
             return self.ws.recv()
         return None
+
+    async def sendScore(self, message):
+        if self.ws is not None:
+            try:
+                self.ws.send("score")
+                self.ws.send(message)
+            except BrokenPipeError:
+                self.connect()
+                self.ws.send("score")
+                self.ws.send(message)
+            return asyncio.sleep(2)
 
     async def send(self, message):
         if self.ws is not None:
