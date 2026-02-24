@@ -99,7 +99,7 @@ class Flappy:
         leaderboard_font = pygame.font.SysFont(None, 32)
         if self.raw == None:
             self.raw = requests.get(f"{self.apiURL}/get")
-        leaderboard_json = self.raw.json()
+        leaderboard_json = json.loads(self.raw.json())
         leaderboard_json = leaderboard_json["leaderboard"]
         users = []
         for user in leaderboard_json:
