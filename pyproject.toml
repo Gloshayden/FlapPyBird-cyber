@@ -7,8 +7,7 @@ requires-python = ">=3.9,<4"
 dependencies = [
     "FreeSimpleGUI==5.2.0.post1",
     "pygame==2.6.1",
-    "websocket-client==1.8.0",
-    "websockets==15.0.1"
+    "requests==2.32.5"
     ]
 
 [project.optional-dependencies]
