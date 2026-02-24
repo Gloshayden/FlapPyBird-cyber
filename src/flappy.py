@@ -119,7 +119,7 @@ class Flappy:
             self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
             for i in range(len(users)):
                 j = i * 30
-                leaderboard = leaderboard_font.render(users[i], True, (255, 255, 255))
+                leaderboard = leaderboard_font.render(users[i], True, (0, 0, 0))
                 self.config.screen.blit(
                     leaderboard, (20, 30 + j)
                 )  # Adjust position as needed
@@ -191,7 +191,7 @@ class Flappy:
         self.floor.stop()
 
         requests.patch(
-            f"{self.apiURL / score}",
+            f"{self.apiURL}/score",
             json={"name": self.name, "score": str(self.score.current())},
         )
         if self.score.current() > self.get_highscore():
