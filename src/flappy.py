@@ -1,10 +1,11 @@
 import asyncio
 import json
 import sys
-
+import requests
 import FreeSimpleGUI as sg
 import pygame
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT, K_l
+from src.entities import score
 
 from .entities import (
     Background,
@@ -16,7 +17,7 @@ from .entities import (
     Score,
     WelcomeMessage,
 )
-from .utils import GameConfig, Images, Sounds, WebSocketClient, Window
+from .utils import GameConfig, Images, Sounds, Window
 
 
 class Flappy:
@@ -36,8 +37,9 @@ class Flappy:
             sounds=Sounds(),
         )
 
-    async def start(self, websocketURL):
+    async def start(self, apiURL):
         while True:
+            self.apiURL = apiURL
             self.raw = None
             self.background = Background(self.config)
             self.floor = Floor(self.config)
@@ -46,8 +48,6 @@ class Flappy:
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
             self.score = Score(self.config)
-            self.websocket = WebSocketClient(websocketURL)
-            self.websocket.connect()
             layout = [
                 [sg.Text("please enter in your name")],
                 [sg.InputText(key="Input1")],
@@ -61,7 +61,6 @@ class Flappy:
                 self.name = values["Input1"]
             if event == sg.WIN_CLOSED or event == "Cancel":
                 window.close()
-                self.websocket.close()
                 pygame.quit()
                 sys.exit()
             await self.splash()
@@ -99,8 +98,8 @@ class Flappy:
         font = pygame.font.SysFont(None, 24)
         leaderboard_font = pygame.font.SysFont(None, 32)
         if self.raw == None:
-            self.raw = self.websocket.respond("get")
-        leaderboard_json = json.loads(self.raw)
+            self.raw = requests.get(f"{self.apiURL}/get")
+        leaderboard_json = self.raw.json()
         leaderboard_json = leaderboard_json["leaderboard"]
         users = []
         for user in leaderboard_json:
@@ -117,14 +116,10 @@ class Flappy:
             self.background.tick()
             self.floor.tick()
             self.player.tick()
-            self.config.screen.blit(
-                back_text, (10, 10)
-            )  # Adjust position as needed
+            self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
             for i in range(len(users)):
                 j = i * 30
-                leaderboard = leaderboard_font.render(
-                    users[i], True, (255, 255, 255)
-                )
+                leaderboard = leaderboard_font.render(users[i], True, (255, 255, 255))
                 self.config.screen.blit(
                     leaderboard, (20, 30 + j)
                 )  # Adjust position as needed
@@ -145,10 +140,7 @@ class Flappy:
         return
 
     def check_quit_event(self, event):
-        if event.type == QUIT or (
-            event.type == KEYDOWN and event.key == K_ESCAPE
-        ):
-            self.websocket.close()
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
             pygame.quit()
             sys.exit()
 
@@ -198,8 +190,9 @@ class Flappy:
         self.pipes.stop()
         self.floor.stop()
 
-        await self.websocket.sendScore(
-            json.dumps({"name": self.name, "score": str(self.score.current())})
+        requests.patch(
+            f"{self.apiURL / score}",
+            json={"name": self.name, "score": str(self.score.current())},
         )
         if self.score.current() > self.get_highscore():
             self.set_highscore(self.score.current())
