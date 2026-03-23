@@ -1,12 +1,12 @@
 import json
 import os
 import sys
-import traceback
-from datetime import datetime
+import logging
 from fastapi import FastAPI, HTTPException
 
 sys.dont_write_bytecode = True
 app = FastAPI()
+logger = logging.getLogger("uvicorn.error")
 
 if not os.path.exists(
     "leaderboard.json"
@@ -20,7 +20,7 @@ if not os.path.exists(
 async def getLeaderboard():
     with open("leaderboard.json", "r") as f:
         leaderboard = json.load(f)
-    print(f"sending leaderboard to client: {leaderboard}")
+    logger.info(f"sending leaderboard to client: {leaderboard}")
     return json.dumps(leaderboard)  # send leaderboard to client
 
 
@@ -44,7 +44,7 @@ async def newScore(data: dict):
         key=lambda x: x["score"],
         reverse=True,
     )[:10]  # sort and keep top 10 scores
-    print(f"updated leaderboard: {leaderboard}")
+    logger.info(f"updated leaderboard: {leaderboard}")
     with open("leaderboard.json", "w") as f:  # save updated leaderboard
         leaderboard = {"leaderboard": leaderboard["leaderboard"]}
         json.dump(leaderboard, f)
