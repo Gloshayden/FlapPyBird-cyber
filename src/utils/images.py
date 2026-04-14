@@ -33,6 +33,9 @@ class Images:
         ).convert_alpha()
         # base (ground) sprite
         self.base = pygame.image.load("assets/sprites/base.png").convert_alpha()
+        self.player_dead = pygame.image.load(
+            "assets/sprites/mrs_file_dead.png"
+        ).convert_alpha()
         self.randomize()
 
     def randomize(self):
