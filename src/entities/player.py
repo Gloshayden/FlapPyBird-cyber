@@ -80,6 +80,9 @@ class Player(Entity):
         self.vel_rot = -8
 
     def update_image(self):
+        if self.mode == PlayerMode.CRASH:
+            return
+
         self.frame += 1
         if self.frame % 5 == 0:
             self.img_idx = next(self.img_gen)
