@@ -46,14 +46,14 @@ services:
         container_name: leaderboard
         ports:
             - 8080:8080
-        image: gloshayden/python-leaderboard:latest
+        image: gloshayden/python-leaderboard-api:latest
 ```
 Then run: ```docker compose up -d```
 (The compose file is also in the leaderboard file)
 
 Docker CLI:
 ``` Docker CLI
-docker run -d --name leaderboard -p 8080:8080 gloshayden/python-leaderboard:latest
+docker run -d --name leaderboard -p 8080:8080 gloshayden/python-leaderboard-api:latest
 ```
 
 Notable forks
