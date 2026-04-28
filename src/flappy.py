@@ -1,10 +1,12 @@
 import asyncio
 import json
 import sys
-import requests
+
 import FreeSimpleGUI as sg
 import pygame
+import requests
 from pygame.locals import K_ESCAPE, K_SPACE, K_UP, KEYDOWN, QUIT, K_l
+
 from src.entities import score
 
 from .entities import (
@@ -48,6 +50,13 @@ class Flappy:
             self.game_over_message = GameOver(self.config)
             self.pipes = Pipes(self.config)
             self.score = Score(self.config)
+            try:
+                requests.get(f"{self.apiURL}/get")
+                self.serverUp = True
+            except:
+                self.serverUp = False
+                print("server not accessable")
+                continue
             layout = [
                 [sg.Text("please enter in your name")],
                 [sg.InputText(key="Input1")],
@@ -98,9 +107,12 @@ class Flappy:
         font = pygame.font.SysFont(None, 24)
         leaderboard_font = pygame.font.SysFont(None, 32)
         if self.raw == None:
-            self.raw = requests.get(f"{self.apiURL}/get")
-        leaderboard_json = json.loads(self.raw.json())
-        leaderboard_json = leaderboard_json["leaderboard"]
+            if self.serverUp:
+                self.raw = requests.get(f"{self.apiURL}/get")
+                leaderboard_json = json.loads(self.raw.json())
+                leaderboard_json = leaderboard_json["leaderboard"]
+            else:
+                leaderboard_json = {}
         users = []
         for user in leaderboard_json:
             users += [f"{user['name']}: Score {user['score']}"]
@@ -116,7 +128,9 @@ class Flappy:
             self.background.tick()
             self.floor.tick()
             self.player.tick()
-            self.config.screen.blit(back_text, (10, 10))  # Adjust position as needed
+            self.config.screen.blit(
+                back_text, (10, 10)
+            )  # Adjust position as needed
             for i in range(len(users)):
                 j = i * 30
                 leaderboard = leaderboard_font.render(users[i], True, (0, 0, 0))
@@ -140,7 +154,9 @@ class Flappy:
         return
 
     def check_quit_event(self, event):
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+        if event.type == QUIT or (
+            event.type == KEYDOWN and event.key == K_ESCAPE
+        ):
             pygame.quit()
             sys.exit()
 
@@ -189,11 +205,11 @@ class Flappy:
         self.player.set_mode(PlayerMode.CRASH)
         self.pipes.stop()
         self.floor.stop()
-
-        requests.patch(
-            f"{self.apiURL}/score",
-            json={"name": self.name, "score": str(self.score.current())},
-        )
+        if self.serverUp:
+            requests.patch(
+                f"{self.apiURL}/score",
+                json={"name": self.name, "score": str(self.score.current())},
+            )
         if self.score.current() > self.get_highscore():
             self.set_highscore(self.score.current())
 
