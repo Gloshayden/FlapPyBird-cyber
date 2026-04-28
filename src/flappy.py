@@ -56,7 +56,6 @@ class Flappy:
             except:
                 self.serverUp = False
                 print("server not accessable")
-                continue
             layout = [
                 [sg.Text("please enter in your name")],
                 [sg.InputText(key="Input1")],
